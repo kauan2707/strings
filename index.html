@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Master Tools</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #0a0e17;
+      color: #e0e0e0;
+      padding-bottom: 85px;
+      line-height: 1.6;
+    }
+    header {
+      background: linear-gradient(135deg, #1a2338, #0f1629);
+      padding: 20px 15px;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo { 
+      font-size: 32px; 
+      font-weight: 800; 
+      color: #ff6600; 
+      letter-spacing: -1px; 
+    }
+
+    /* Catálogo */
+    .search-bar { padding: 15px 20px; background: #0f1629; }
+    .search-bar input {
+      width: 100%;
+      padding: 14px 20px;
+      border-radius: 30px;
+      border: none;
+      background: #1e2a44;
+      color: white;
+      font-size: 16px;
+    }
+    .filters {
+      display: flex;
+      gap: 10px;
+      padding: 12px 20px;
+      overflow-x: auto;
+      background: #0f1629;
+    }
+    .filter-btn {
+      background: #1e2a44;
+      color: #ccc;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 30px;
+      white-space: nowrap;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .filter-btn.active {
+      background: #ff6600;
+      color: white;
+    }
+    .content { padding: 15px 20px; display: none; }
+    .content.active { display: block; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
+      gap: 18px;
+    }
+    .card {
+      background: #1a2338;
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 12px 25px rgba(255,102,0,0.2);
+    }
+    .card h3 {
+      margin-bottom: 8px;
+      color: #ffcc66;
+    }
+
+    /* Modal de Descrição */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.9);
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal-content {
+      background: #1a2338;
+      padding: 28px;
+      border-radius: 20px;
+      width: 90%;
+      max-width: 460px;
+      max-height: 85vh;
+      overflow-y: auto;
+    }
+    .modal-content h3 {
+      color: #ffcc66;
+      margin-bottom: 12px;
+    }
+    .modal-content .price {
+      color: #ffcc66;
+      font-size: 1.2rem;
+      margin-bottom: 20px;
+    }
+
+    /* Perfil, Stats, etc. (mantido igual) */
+    .profile-header { text-align: center; margin-bottom: 25px; }
+    .profile-pic {
+      width: 110px; height: 110px; border-radius: 50%;
+      background: #334155; margin: 0 auto 15px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 45px; border: 4px solid #ff6600;
+    }
+    .profile-name { font-size: 22px; font-weight: bold; margin-bottom: 5px; }
+    .profile-email { color: #aaa; margin-bottom: 20px; }
+    .stats {
+      display: flex; justify-content: space-around;
+      background: #1a2338; border-radius: 16px;
+      padding: 18px 10px; margin-bottom: 25px;
+    }
+    .stat-item { text-align: center; }
+    .stat-number { font-size: 24px; font-weight: bold; color: #ffcc66; }
+    .stat-label { font-size: 13px; color: #888; }
+
+    button {
+      background: #ff6600;
+      color: white;
+      border: none;
+      padding: 13px;
+      border-radius: 12px;
+      font-weight: 700;
+      width: 100%;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: all 0.3s;
+    }
+    button:hover { 
+      background: #ff8533; 
+      transform: scale(1.03);
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: #0f1629;
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0 8px;
+      border-top: 1px solid #1e2a44;
+    }
+    .nav-item {
+      text-align: center;
+      color: #888;
+      cursor: pointer;
+      font-size: 12.5px;
+      transition: all 0.3s;
+    }
+    .nav-item.active { color: #ff6600; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">🔨 MASTER TOOLS</div>
+  </header>
+
+  <!-- Catálogo -->
+  <div class="content active" id="tab0">
+    <h2 style="margin-bottom: 10px; color: #ffcc66;">Catálogo de Ferramentas</h2>
+    <div class="search-bar">
+      <input type="text" id="search" placeholder="🔎 Buscar ferramenta...">
+    </div>
+    <div class="filters">
+      <button class="filter-btn active" data-filter="all">Todos</button>
+      <button class="filter-btn" data-filter="eletrica">Elétricas</button>
+      <button class="filter-btn" data-filter="manuais">Manuais</button>
+      <button class="filter-btn" data-filter="construcao">Construção</button>
+      <button class="filter-btn" data-filter="jardinagem">Jardinagem</button>
+    </div>
+    <div class="grid" id="catalog"></div>
+  </div>
+
+  <!-- Outros tabs (mantidos iguais) -->
+  <div class="content" id="tab1"> ... </div>
+  <div class="content" id="tab2"> ... </div>
+  <div class="content" id="tab3"> ... </div>
+
+  <!-- Modal de Descrição -->
+  <div class="modal" id="detailModal">
+    <div class="modal-content">
+      <h3 id="detail-name"></h3>
+      <p id="detail-price" class="price"></p>
+      <p id="detail-desc" style="margin-bottom: 25px; color:#ddd;"></p>
+      
+      <div style="display:flex; gap:12px;">
+        <button onclick="closeDetailModal()" style="background:#334155; flex:1;">Fechar</button>
+        <button onclick="rentFromDetail()" style="flex:1;">Alugar Agora</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Aluguel (mantido) -->
+  <div class="modal" id="rentModal"> ... </div>
+
+  <!-- Outros modais (edit, support) permanecem iguais -->
+
+  <!-- Barra inferior -->
+  <div class="bottom-nav">
+    <div class="nav-item active" data-tab="0">🔍<br>Catálogo</div>
+    <div class="nav-item" data-tab="1">📦<br>Aluguéis</div>
+    <div class="nav-item" data-tab="2">👤<br>Perfil</div>
+    <div class="nav-item" data-tab="3">🛟<br>Suporte</div>
+  </div>
+
+  <script>
+    const tools = [
+      {name: "Furadeira de Impacto", price: "R$ 45-65/dia", category: "eletrica",
+       description: "Furadeira potente com função de impacto ideal para concreto, alvenaria e madeira. Potência de 850W, mandril de 13mm e velocidade variável."},
+      {name: "Esmerilhadeira 4½\"", price: "R$ 45-65/dia", category: "eletrica",
+       description: "Esmerilhadeira angular compacta de 4½ polegadas. Perfeita para corte, desbaste e polimento de metais e pedras."},
+      {name: "Serra Circular", price: "R$ 65-85/dia", category: "eletrica",
+       description: "Serra circular profissional para cortes precisos em madeira, MDF e compensado. Profundidade de corte até 65mm."},
+      // ... (todas as outras ferramentas com descrições)
+      {name: "Parafusadeira", price: "R$ 35-55/dia", category: "eletrica", description: "Parafusadeira/furadeira de impacto leve e ergonômica. Ideal para montagens e fixações rápidas."},
+      {name: "Serra Tico-Tico", price: "R$ 50-70/dia", category: "eletrica", description: "Serra tico-tico com ação pendular para cortes curvos e retos em madeira, plástico e metais leves."},
+      {name: "Lixadeira Orbital", price: "R$ 40-60/dia", category: "eletrica", description: "Lixadeira orbital com sistema de coleta de pó. Excelente para acabamento e preparação de superfícies."},
+      {name: "Martelo Demolidor", price: "R$ 90-130/dia", category: "eletrica", description: "Martelo demolidor pesado para quebra de concreto, asfalto e cerâmica. Alta potência de impacto."},
+      {name: "Serra de Esquadria", price: "R$ 80-110/dia", category: "eletrica", description: "Serra de esquadria com laser guia para cortes angulares precisos em molduras e esquadrias."},
+      {name: "Solda Inversora", price: "R$ 70-95/dia", category: "eletrica", description: "Máquina de solda inverter moderna, leve e eficiente para eletrodo revestido (MMA)."},
+      {name: "Compressora de Ar", price: "R$ 85-120/dia", category: "eletrica", description: "Compressora portátil com tanque para uso com pistolas de pintura, cravadores e ferramentas pneumáticas."},
+      
+      {name: "Martelo de Unha", price: "R$ 10-20/dia", category: "manuais", description: "Martelo de unha clássico, 27mm, cabo de madeira ou fibra. Ideal para pregos e trabalhos leves."},
+      {name: "Chave Inglesa", price: "R$ 15-25/dia", category: "manuais", description: "Chave inglesa ajustável de alta qualidade, abertura de até 38mm."},
+      {name: "Alicate Universal", price: "R$ 12-22/dia", category: "manuais", description: "Alicate multifuncional para corte, aperto e torção."},
+      {name: "Trena 5 metros", price: "R$ 8-15/dia", category: "manuais", description: "Trena metálica com travamento automático e fita de 5 metros."},
+      {name: "Nível de Bolha", price: "R$ 10-18/dia", category: "manuais", description: "Nível de bolha de alumínio com 3 bolhas (horizontal, vertical e 45°)."},
+      {name: "Serrote para Madeira", price: "R$ 15-25/dia", category: "manuais", description: "Serrote japonês ou ocidental de alta precisão para corte de madeira."},
+      
+      {name: "Betoneira 400L", price: "R$ 80-120/dia", category: "construcao", description: "Betoneira com capacidade de 400 litros. Ideal para grandes volumes de concreto e argamassa."},
+      {name: "Lavadora de Alta Pressão", price: "R$ 55-80/dia", category: "construcao", description: "Lavadora de alta pressão 2200-3000 PSI para limpeza de fachadas, pisos e equipamentos."},
+      {name: "Vibrador de Concreto", price: "R$ 65-90/dia", category: "construcao", description: "Vibrador de imersão para eliminar bolhas de ar no concreto."},
+      {name: "Andaime Tubular", price: "R$ 70-100/dia", category: "construcao", description: "Andaime tubular modular (por módulo). Seguro e fácil de montar."},
+      {name: "Cortador de Piso", price: "R$ 50-75/dia", category: "construcao", description: "Cortador manual ou elétrico para cerâmica, porcelanato e pisos frios."},
+      
+      {name: "Cortador de Grama", price: "R$ 60-90/dia", category: "jardinagem", description: "Cortador de grama a gasolina ou elétrico para áreas residenciais e comerciais."},
+      {name: "Roçadeira", price: "R$ 65-95/dia", category: "jardinagem", description: "Roçadeira costal potente para capim alto, mato e limpeza de terrenos."},
+      {name: "Soprador de Folhas", price: "R$ 45-70/dia", category: "jardinagem", description: "Soprador/aspirador de folhas com função de triturar."},
+      {name: "Motosserra", price: "R$ 75-110/dia", category: "jardinagem", description: "Motosserra profissional para corte de árvores e lenha."},
+      {name: "Tesoura de Poda Elétrica", price: "R$ 40-65/dia", category: "jardinagem", description: "Tesoura de poda elétrica com bateria para precisão em arbustos e árvores pequenas."}
+    ];
+
+    let rentals = [];
+    let currentTool = null;
+
+    // Render Catálogo
+    function renderCatalog(filteredTools) {
+      const container = document.getElementById('catalog');
+      container.innerHTML = '';
+      filteredTools.forEach(tool => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <h3>${tool.name}</h3>
+          <p style="color:#ffcc66; margin:8px 0;">${tool.price}</p>
+          <button onclick="event.stopImmediatePropagation(); openRentModal('${tool.name}')">Alugar Agora</button>
+        `;
+        card.onclick = () => showToolDetail(tool);
+        container.appendChild(card);
+      });
+    }
+
+    function showToolDetail(tool) {
+      currentTool = tool;
+      document.getElementById('detail-name').textContent = tool.name;
+      document.getElementById('detail-price').textContent = tool.price;
+      document.getElementById('detail-desc').textContent = tool.description;
+      document.getElementById('detailModal').style.display = 'flex';
+    }
+
+    function closeDetailModal() {
+      document.getElementById('detailModal').style.display = 'none';
+    }
+
+    function rentFromDetail() {
+      closeDetailModal();
+      if (currentTool) openRentModal(currentTool.name);
+    }
+
+    // Restante do seu código (openRentModal, confirmarAluguel, navegação, etc.) permanece igual
+    function openRentModal(toolName) {
+      currentTool = tools.find(t => t.name === toolName);
+      if (!currentTool) return;
+      
+      document.getElementById('modal-title').textContent = currentTool.name;
+      document.getElementById('modal-price').textContent = currentTool.price;
+      document.getElementById('rentModal').style.display = 'flex';
+    }
+
+    function confirmarAluguel() {
+      const days = parseInt(document.getElementById('days').value);
+      if (!days || days < 1) return alert("Informe um número válido de dias.");
+      
+      const rental = {
+        tool: currentTool.name,
+        days: days,
+        startDate: new Date().toLocaleDateString('pt-BR'),
+        endDate: new Date(Date.now() + days * 86400000).toLocaleDateString('pt-BR')
+      };
+      rentals.push(rental);
+      closeRentModal();
+      alert(`✅ Reserva confirmada!\nFerramenta: ${currentTool.name}\nDuração: ${days} dias`);
+      if (document.getElementById('tab1').classList.contains('active')) renderRentals();
+    }
+
+    function closeRentModal() {
+      document.getElementById('rentModal').style.display = 'none';
+    }
+
+    // ... (o resto das funções: renderRentals, editProfile, suporte, navegação, filtros, etc. permanecem iguais)
+
+    // Inicialização
+    renderCatalog(tools);
+  </script>
+</body>
+</html>
